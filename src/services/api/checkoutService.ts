@@ -1,5 +1,5 @@
 import axiosInstance from './axios';
-import { ApiResponse, CheckoutReview, Order } from '../../types';
+import { ApiResponse, CheckoutReview } from '../../types';
 
 export interface CheckoutData {
   shop_order_ids: Array<{

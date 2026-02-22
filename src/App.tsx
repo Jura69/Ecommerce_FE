@@ -6,6 +6,8 @@ import GuestGuard from './guards/GuestGuard';
 import MainLayout from './layouts/MainLayout';
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/products/ProductsPage';
 import ProductDetailPage from './pages/products/ProductDetailPage';
@@ -14,6 +16,14 @@ import CartPage from './pages/cart/CartPage';
 import CheckoutPage from './pages/checkout/CheckoutPage';
 import CheckoutSuccessPage from './pages/checkout/CheckoutSuccessPage';
 import NotificationPage from './pages/notifications/NotificationPage';
+import OrdersPage from './pages/orders/OrdersPage';
+import OrderDetailPage from './pages/orders/OrderDetailPage';
+import ProfilePage from './pages/settings/ProfilePage';
+import AddressPage from './pages/settings/AddressPage';
+import DashboardPage from './pages/dashboard/DashboardPage';
+import ShopOrdersPage from './pages/dashboard/ShopOrdersPage';
+import ShopProductsPage from './pages/dashboard/ShopProductsPage';
+import WishlistPage from './pages/wishlist/WishlistPage';
 
 function App() {
   return (
@@ -38,6 +48,8 @@ function App() {
               </GuestGuard>
             }
           />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
           {/* Protected routes with main layout */}
           <Route
@@ -55,6 +67,14 @@ function App() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
             <Route path="/notifications" element={<NotificationPage />} />
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+            <Route path="/settings/profile" element={<ProfilePage />} />
+            <Route path="/settings/addresses" element={<AddressPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/dashboard/orders" element={<ShopOrdersPage />} />
+            <Route path="/dashboard/products" element={<ShopProductsPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
           </Route>
 
           {/* Redirect unknown routes to home */}

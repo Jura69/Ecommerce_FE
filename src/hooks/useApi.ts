@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ApiResponse, ApiError } from '../types';
 
 interface UseApiReturn<T> {
@@ -12,18 +12,25 @@ interface UseApiReturn<T> {
 export function useApi<T = any>(
   apiFunction: (...args: any[]) => Promise<ApiResponse<T>>,
   immediate = true,
-  dependencies: any[] = []
+  _dependencies: any[] = []
 ): UseApiReturn<ApiResponse<T>> {
   const [data, setData] = useState<ApiResponse<T> | null>(null);
   const [loading, setLoading] = useState<boolean>(immediate);
   const [error, setError] = useState<string | null>(null);
+  const apiFunctionRef = useRef(apiFunction);
+  const hasExecutedRef = useRef(false);
+
+  // Update ref when apiFunction changes
+  useEffect(() => {
+    apiFunctionRef.current = apiFunction;
+  }, [apiFunction]);
 
   const execute = useCallback(
     async (...args: any[]): Promise<ApiResponse<T>> => {
       try {
         setLoading(true);
         setError(null);
-        const response = await apiFunction(...args);
+        const response = await apiFunctionRef.current(...args);
         setData(response);
         return response;
       } catch (err: any) {
@@ -35,15 +42,17 @@ export function useApi<T = any>(
         setLoading(false);
       }
     },
-    [apiFunction]
+    []
   );
 
+  // Run once on mount if immediate is true
   useEffect(() => {
-    if (immediate) {
+    if (immediate && !hasExecutedRef.current) {
+      hasExecutedRef.current = true;
       execute();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [immediate, execute, ...dependencies]);
+  }, []);
 
   const reset = useCallback(() => {
     setData(null);
@@ -53,4 +62,5 @@ export function useApi<T = any>(
 
   return { data, loading, error, execute, reset };
 }
+
 

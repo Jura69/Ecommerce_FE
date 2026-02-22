@@ -19,4 +19,33 @@ export {
   type CreateCommentData,
   type DeleteCommentData,
 } from './commentService';
-
+export {
+  orderService,
+  type GetOrdersParams,
+  type CancelOrderData,
+  type UpdateOrderStatusData,
+} from './orderService';
+export {
+  profileService,
+  type ProfileData,
+  type UpdateProfileData,
+} from './profileService';
+export {
+  addressService,
+  type AddressData,
+  type CreateAddressData,
+  type UpdateAddressData,
+} from './addressService';
+export {
+  categoryService,
+  type CategoryData,
+  type AdvancedProductsParams,
+  type AdvancedProductsResponse,
+} from './categoryService';
+export {
+  reviewService,
+  type ReviewData,
+  type ReviewStatsData,
+  type ReviewsResponse,
+  type CreateReviewData,
+} from './reviewService';

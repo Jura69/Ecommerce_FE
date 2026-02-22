@@ -115,32 +115,49 @@ export interface Notification {
   updatedAt: string;
 }
 
+export interface OrderStatusHistoryEntry {
+  status: string;
+  changedAt: string;
+  changedBy: string;
+  reason?: string;
+}
+
 export interface Order {
   _id: string;
   order_userId: string;
   order_checkout: {
     totalPrice: number;
-    totalApplyDiscount: number;
-    feeShip: number;
+    totalApplyDiscount?: number;
+    totalDiscount?: number;
+    feeShip?: number;
+    totalCheckout?: number;
   };
   order_shipping: {
-    street: string;
-    city: string;
+    street?: string;
+    city?: string;
     state?: string;
-    zipCode: string;
+    zipCode?: string;
     country?: string;
   };
   order_payment: {
-    method: string;
+    method?: string;
+    [key: string]: any;
   };
   order_products: Array<{
     productId: string;
     quantity: number;
     price: number;
+    name?: string;
+    shopId?: string;
   }>;
-  order_status: string;
-  createdAt: string;
-  updatedAt: string;
+  order_trackingNumber?: string;
+  order_status: 'pending' | 'confirmed' | 'shipped' | 'cancelled' | 'delivered';
+  order_status_history?: OrderStatusHistoryEntry[];
+  order_expiresAt?: string;
+  createdOn?: string;
+  modifiedOn?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CheckoutReview {

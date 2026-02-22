@@ -33,6 +33,10 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>): ApiResponse => {
+    // Handle 304 Not Modified - return cached data or empty response
+    if (response.status === 304) {
+      return response.data || { message: 'Not Modified', metadata: null };
+    }
     return response.data;
   },
   async (error: AxiosError<ApiResponse>): Promise<never> => {
