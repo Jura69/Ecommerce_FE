@@ -1,4 +1,4 @@
-import { Alert, AlertTitle, Button, Box, AlertColor } from '@mui/material';
+import { Alert, AlertTitle, Button, AlertColor } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 interface ErrorDisplayProps {

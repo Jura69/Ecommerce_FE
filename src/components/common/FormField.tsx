@@ -6,7 +6,7 @@ interface FormFieldProps extends Omit<TextFieldProps, 'onChange' | 'onBlur'> {
   value: string | number | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  error?: string | null;
+  error?: boolean;
   touched?: boolean;
 }
 

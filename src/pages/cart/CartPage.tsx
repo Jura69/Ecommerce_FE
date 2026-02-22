@@ -37,7 +37,7 @@ function CartPage() {
   const totalItems = getCartItemCount();
   const cartProducts = cart?.cart_products || [];
   const cartTotal = cartProducts.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + (Number(item.price) || 0) * (Number(item.quantity) || 0),
     0
   );
 
@@ -71,7 +71,7 @@ function CartPage() {
         Shopping Cart ({totalItems} items)
       </Typography>
       <Grid container spacing={4}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           {cartProducts.map((item) => (
             <CartItem
               key={item.productId}
@@ -81,7 +81,7 @@ function CartPage() {
             />
           ))}
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <OrderSummary
             items={cartProducts.map((item) => ({
               name: item.name,
