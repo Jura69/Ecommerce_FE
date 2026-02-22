@@ -1,5 +1,6 @@
-import { TextField, InputAdornment, Paper, SxProps, Theme } from '@mui/material';
+import { TextField, InputAdornment, SxProps, Theme } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { tokens } from '../../theme/theme';
 
 interface SearchBarProps {
   value: string;
@@ -17,21 +18,26 @@ export default function SearchBar({
   sx = {},
 }: SearchBarProps) {
   return (
-    <Paper sx={{ p: 2, mb: 3, ...sx }}>
-      <TextField
-        fullWidth={fullWidth}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }}
-      />
-    </Paper>
+    <TextField
+      fullWidth={fullWidth}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      size="small"
+      sx={{
+        '& .MuiOutlinedInput-root': {
+          bgcolor: tokens.colors.white,
+          borderRadius: '10px',
+        },
+        ...sx,
+      }}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <SearchIcon sx={{ color: tokens.colors.stone400 }} />
+          </InputAdornment>
+        ),
+      }}
+    />
   );
 }
-

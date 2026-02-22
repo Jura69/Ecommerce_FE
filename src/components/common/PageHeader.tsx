@@ -1,6 +1,7 @@
-import { Box, Typography, Button, SxProps, Theme } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { ReactNode, ReactElement } from 'react';
+import { tokens } from '../../theme/theme';
 
 interface PageHeaderProps {
   title: string;
@@ -33,11 +34,18 @@ export default function PageHeader({
       }}
     >
       <Box>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            color: tokens.colors.stone900,
+          }}
+        >
           {title}
         </Typography>
         {subtitle && (
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography variant="body2" sx={{ mt: 0.5, color: tokens.colors.stone500 }}>
             {subtitle}
           </Typography>
         )}
@@ -49,8 +57,14 @@ export default function PageHeader({
             to={actionPath}
             onClick={onAction}
             variant="contained"
-            color="primary"
+            color="secondary"
             startIcon={actionIcon}
+            sx={{
+              background: tokens.gradients.gold,
+              color: '#FFFFFF',
+              boxShadow: tokens.shadows.gold,
+              '&:hover': { boxShadow: tokens.shadows.goldHover },
+            }}
           >
             {actionLabel}
           </Button>
@@ -58,4 +72,3 @@ export default function PageHeader({
     </Box>
   );
 }
-

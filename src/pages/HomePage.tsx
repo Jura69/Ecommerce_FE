@@ -1,162 +1,168 @@
+import { Box, Typography, Button, Grid } from '@mui/material';
+import { Link } from 'react-router-dom';
 import {
-  Container,
-  Box,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Grid,
-  Paper,
-  Chip,
-} from '@mui/material';
-import { useNavigate, Link } from 'react-router-dom';
+  ShoppingBagOutlined,
+  LocalShippingOutlined,
+  SupportAgentOutlined,
+  VerifiedOutlined,
+  ArrowForward,
+} from '@mui/icons-material';
 import { useAuthStore } from '../store';
-import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import { tokens } from '../theme/theme';
+
+const FEATURES = [
+  { icon: <ShoppingBagOutlined />, title: 'Curated Products', desc: 'Hand-picked selections for quality-conscious shoppers' },
+  { icon: <LocalShippingOutlined />, title: 'Fast Delivery', desc: 'Free shipping on orders over $50, delivered in 2-3 days' },
+  { icon: <SupportAgentOutlined />, title: '24/7 Support', desc: 'Our team is always here to help with any questions' },
+  { icon: <VerifiedOutlined />, title: 'Secure Checkout', desc: 'Industry-leading encryption for safe transactions' },
+];
 
 export default function HomePage() {
-  const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
+  const { user } = useAuthStore();
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: { xs: 4, md: 8 } }}>
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
-          <Typography
-            variant="h3"
-            component="h1"
-            gutterBottom
-            sx={{ fontWeight: 600, mb: 2 }}
-          >
-            Welcome to E-commerce Shop
-          </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
-            Your one-stop shop for all your shopping needs
-          </Typography>
-        </Box>
+    <Box>
+      {/* Hero Section */}
+      <Box
+        sx={{
+          py: { xs: 6, md: 10 },
+          textAlign: 'center',
+          position: 'relative',
+        }}
+      >
+        <Typography
+          variant="overline"
+          sx={{
+            color: tokens.colors.gold600,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            mb: 2,
+            display: 'block',
+          }}
+        >
+          WELCOME{user ? `, ${user.name?.toUpperCase()}` : ' TO SHOPSPHERE'}
+        </Typography>
 
-        {user && (
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} md={8}>
-              <Card elevation={2}>
-                <CardContent>
-                  <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-                    Shop Information
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="body2" color="text.secondary">
-                        Name
-                      </Typography>
-                      <Typography variant="body1" sx={{ mb: 2, fontWeight: 500 }}>
-                        {user.name}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="body2" color="text.secondary">
-                        Email
-                      </Typography>
-                      <Typography variant="body1" sx={{ mb: 2, fontWeight: 500 }}>
-                        {user.email}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="body2" color="text.secondary">
-                        Status
-                      </Typography>
-                      <Typography variant="body1" sx={{ mb: 2, fontWeight: 500 }}>
-                        {user.status || 'Active'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="body2" color="text.secondary">
-                        Verified
-                      </Typography>
-                      <Box sx={{ mb: 2 }}>
-                        <Chip
-                          label={user.verify ? 'Yes' : 'No'}
-                          color={user.verify ? 'success' : 'default'}
-                          size="small"
-                        />
-                      </Box>
-                    </Grid>
-                  </Grid>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={handleLogout}
-                    sx={{ mt: 2 }}
-                  >
-                    Logout
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Paper
-                elevation={2}
+        <Typography
+          variant="h1"
+          sx={{
+            mb: 2,
+            color: tokens.colors.stone900,
+            maxWidth: 720,
+            mx: 'auto',
+          }}
+        >
+          Discover{' '}
+          <Box
+            component="span"
+            sx={{
+              background: tokens.gradients.gold,
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            Premium
+          </Box>{' '}
+          Products
+        </Typography>
+
+        <Typography
+          variant="h6"
+          sx={{
+            color: tokens.colors.stone500,
+            mb: 5,
+            maxWidth: 560,
+            mx: 'auto',
+            fontWeight: 400,
+            lineHeight: 1.6,
+          }}
+        >
+          Explore a curated marketplace of electronics, fashion, and lifestyle products with unbeatable deals.
+        </Typography>
+
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Button
+            component={Link}
+            to="/products"
+            variant="contained"
+            color="secondary"
+            size="large"
+            endIcon={<ArrowForward />}
+            sx={{
+              px: 4,
+              py: 1.5,
+              fontSize: '1rem',
+              background: tokens.gradients.gold,
+              color: '#FFFFFF',
+              boxShadow: tokens.shadows.gold,
+              '&:hover': { boxShadow: tokens.shadows.goldHover },
+            }}
+          >
+            Browse Products
+          </Button>
+          <Button
+            component={Link}
+            to="/dashboard"
+            variant="outlined"
+            size="large"
+            sx={{ px: 4, py: 1.5, fontSize: '1rem' }}
+          >
+            Seller Dashboard
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Features */}
+      <Box sx={{ py: { xs: 4, md: 8 } }}>
+        <Grid container spacing={3}>
+          {FEATURES.map((f, i) => (
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
+              <Box
+                className="fade-in-up"
                 sx={{
                   p: 3,
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
+                  borderRadius: '16px',
+                  border: `1px solid ${tokens.colors.stone200}`,
+                  bgcolor: tokens.colors.white,
                   textAlign: 'center',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
+                  transition: 'all 0.25s ease',
+                  cursor: 'default',
+                  height: '100%',
+                  '&:hover': {
+                    borderColor: tokens.colors.gold300,
+                    boxShadow: tokens.shadows.gold,
+                    transform: 'translateY(-2px)',
+                  },
                 }}
               >
-                <ShoppingBagIcon sx={{ fontSize: 60, mb: 2, opacity: 0.9 }} />
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                  Start Shopping
-                </Typography>
-                <Typography variant="body2" sx={{ mb: 3, opacity: 0.9 }}>
-                  Browse our wide selection of products
-                </Typography>
-                <Button
-                  component={Link}
-                  to="/products"
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  fullWidth
+                <Box
                   sx={{
-                    bgcolor: 'white',
-                    color: 'primary.main',
-                    '&:hover': {
-                      bgcolor: 'rgba(255, 255, 255, 0.9)',
-                    },
+                    width: 56,
+                    height: 56,
+                    borderRadius: '14px',
+                    bgcolor: tokens.colors.gold50,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mx: 'auto',
+                    mb: 2,
+                    '& svg': { color: tokens.colors.gold600, fontSize: 28 },
                   }}
                 >
-                  Browse Products
-                </Button>
-              </Paper>
+                  {f.icon}
+                </Box>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, fontSize: '1.05rem' }}>
+                  {f.title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: tokens.colors.stone500, lineHeight: 1.5 }}>
+                  {f.desc}
+                </Typography>
+              </Box>
             </Grid>
-          </Grid>
-        )}
-
-        {!user && (
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <Button
-              component={Link}
-              to="/products"
-              variant="contained"
-              color="primary"
-              size="large"
-              startIcon={<ShoppingBagIcon />}
-              sx={{ px: 4, py: 1.5 }}
-            >
-              Browse Products
-            </Button>
-          </Box>
-        )}
+          ))}
+        </Grid>
       </Box>
-    </Container>
+    </Box>
   );
 }
-

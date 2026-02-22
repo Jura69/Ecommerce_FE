@@ -11,6 +11,7 @@ import {
 import { Link } from 'react-router-dom';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { Product } from '../../types';
+import { tokens } from '../../theme/theme';
 
 interface ProductCardProps {
   product: Product;
@@ -35,32 +36,63 @@ export default function ProductCard({
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'transform 0.2s, box-shadow 0.2s',
+        cursor: 'pointer',
+        overflow: 'hidden',
         '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: 4,
+          boxShadow: tokens.shadows.cardHover,
+          '& .product-image': {
+            transform: 'scale(1.03)',
+          },
         },
       }}
     >
-      <CardMedia
-        component="img"
-        height={imageHeight}
-        image={product.product_thumb}
-        alt={product.product_name}
-        sx={{ objectFit: 'contain', p: 2, bgcolor: 'grey.50' }}
-      />
-      <CardContent sx={{ flexGrow: 1 }}>
+      <Box sx={{ overflow: 'hidden', bgcolor: tokens.colors.stone100, position: 'relative' }}>
+        <CardMedia
+          component="img"
+          height={imageHeight}
+          image={product.product_thumb}
+          alt={product.product_name}
+          className="product-image"
+          sx={{
+            objectFit: 'contain',
+            p: 2,
+            transition: 'transform 0.3s ease',
+          }}
+        />
+        {isOutOfStock && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              bgcolor: tokens.colors.error,
+              color: '#fff',
+              px: 1.5,
+              py: 0.5,
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+            }}
+          >
+            Out of Stock
+          </Box>
+        )}
+      </Box>
+      <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
         <Typography
           gutterBottom
           variant="h6"
           component="h2"
           sx={{
             fontWeight: 600,
+            fontSize: '1rem',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
+            color: tokens.colors.stone900,
+            lineHeight: 1.4,
           }}
         >
           {product.product_name}
@@ -68,7 +100,6 @@ export default function ProductCard({
         {showDescription && product.product_description && (
           <Typography
             variant="body2"
-            color="text.secondary"
             sx={{
               mb: 2,
               overflow: 'hidden',
@@ -76,41 +107,51 @@ export default function ProductCard({
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
+              color: tokens.colors.stone500,
+              lineHeight: 1.5,
             }}
           >
             {product.product_description}
           </Typography>
         )}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: 'primary.main' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 700,
+              fontFamily: '"Rubik", sans-serif',
+              color: tokens.colors.gold700,
+            }}
+          >
             ${product.product_price}
           </Typography>
           {product.product_type && (
             <Chip
               label={product.product_type}
               size="small"
-              variant="outlined"
-              color="primary"
+              sx={{
+                bgcolor: tokens.colors.stone100,
+                color: tokens.colors.stone600,
+                fontWeight: 600,
+                fontSize: '0.7rem',
+              }}
             />
           )}
         </Box>
-        {showStock && (
-          <Typography
-            variant="body2"
-            color={isOutOfStock ? 'error.main' : 'text.secondary'}
-          >
-            Stock: {product.product_quantity}
+        {showStock && !isOutOfStock && (
+          <Typography variant="body2" sx={{ color: tokens.colors.stone400, fontSize: '0.8rem' }}>
+            {product.product_quantity} in stock
           </Typography>
         )}
       </CardContent>
-      <CardActions sx={{ p: 2, pt: 0 }}>
+      <CardActions sx={{ p: 2, pt: 0, gap: 1 }}>
         <Button
           component={Link}
           to={`/products/${product._id}`}
           size="small"
           variant="outlined"
           fullWidth
-          sx={{ mr: 1 }}
+          sx={{ borderRadius: '8px' }}
         >
           View Details
         </Button>
@@ -118,9 +159,23 @@ export default function ProductCard({
           <Button
             size="small"
             variant="contained"
+            color="secondary"
             startIcon={<AddShoppingCartIcon />}
-            onClick={() => onAddToCart(product)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToCart(product);
+            }}
             disabled={isOutOfStock}
+            sx={{
+              background: tokens.gradients.gold,
+              color: '#FFFFFF',
+              borderRadius: '8px',
+              minWidth: 'auto',
+              whiteSpace: 'nowrap',
+              '&:hover': {
+                boxShadow: tokens.shadows.gold,
+              },
+            }}
           >
             Add
           </Button>
@@ -129,4 +184,3 @@ export default function ProductCard({
     </Card>
   );
 }
-
