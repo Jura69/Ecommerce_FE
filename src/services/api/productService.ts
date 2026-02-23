@@ -32,6 +32,16 @@ class ProductService {
     return response;
   }
 
+  async getFeaturedProducts(limit = 8): Promise<ApiResponse<Product[]>> {
+    const response = await axiosInstance.get<ApiResponse<Product[]>>(`/product/featured?limit=${limit}`);
+    return response;
+  }
+
+  async getTrendingProducts(limit = 8): Promise<ApiResponse<Product[]>> {
+    const response = await axiosInstance.get<ApiResponse<Product[]>>(`/product/trending?limit=${limit}`);
+    return response;
+  }
+
   async deleteProduct(productId: string): Promise<ApiResponse<void>> {
     const response = await axiosInstance.delete<ApiResponse<void>>(`/product/${productId}`);
     return response;
