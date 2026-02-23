@@ -10,9 +10,15 @@ interface CartState {
 
 interface CartActions {
   fetchCart: () => Promise<void>;
-  addToCart: (productId: string, quantity: number) => Promise<Cart | undefined>;
-  removeFromCart: (productId: string) => Promise<void>;
-  updateItemQuantity: (productId: string, quantity: number) => Promise<void>;
+  addToCart: (productId: string, quantity: number, shopId: string, productInfo?: {
+    name?: string;
+    price?: number;
+    thumb?: string;
+    skuId?: string;
+    variationLabel?: string;
+  }) => Promise<Cart | undefined>;
+  removeFromCart: (productId: string, skuId?: string) => Promise<void>;
+  updateItemQuantity: (productId: string, quantity: number, shopId: string, skuId?: string) => Promise<void>;
   getCartItemCount: () => number;
   clearCart: () => void;
 }
@@ -35,10 +41,22 @@ const useCartStore = create<CartStore>((set, get) => ({
     }
   },
 
-  addToCart: async (productId: string, quantity: number) => {
+  addToCart: async (productId: string, quantity: number, shopId: string, productInfo?: {
+    name?: string;
+    price?: number;
+    thumb?: string;
+    skuId?: string;
+    variationLabel?: string;
+  }) => {
     try {
       set({ loading: true, error: null });
-      const response = await cartService.addToCart({ productId, quantity });
+      const response = await cartService.addToCart({
+        productId,
+        quantity,
+        shopId,
+        skuId: productInfo?.skuId,
+        ...productInfo,
+      });
       await get().fetchCart();
       return response?.metadata;
     } catch (err: any) {
@@ -47,10 +65,10 @@ const useCartStore = create<CartStore>((set, get) => ({
     }
   },
 
-  removeFromCart: async (productId: string) => {
+  removeFromCart: async (productId: string, skuId?: string) => {
     try {
       set({ loading: true, error: null });
-      await cartService.removeFromCart({ productId });
+      await cartService.removeFromCart({ productId, skuId });
       await get().fetchCart();
     } catch (err: any) {
       const errorMessage = err?.message || 'Failed to remove from cart';
@@ -58,17 +76,23 @@ const useCartStore = create<CartStore>((set, get) => ({
     }
   },
 
-  updateItemQuantity: async (productId: string, quantity: number) => {
+  updateItemQuantity: async (productId: string, quantity: number, shopId: string, skuId?: string) => {
     try {
       const originalCart = get().cart;
       if (!originalCart) return;
 
-      const updatedItems = originalCart.cart_products.map((item) =>
-        item.productId === productId ? { ...item, quantity } : item
-      );
-      set({ cart: { ...originalCart, cart_products: updatedItems } });
+      // Optimistic update
+      const updatedShops = originalCart.cart_shops.map((shop) => ({
+        ...shop,
+        items: shop.items.map((item) => {
+          const itemKey = item.skuId ? `${item.productId}:${item.skuId}` : item.productId;
+          const targetKey = skuId ? `${productId}:${skuId}` : productId;
+          return itemKey === targetKey ? { ...item, quantity } : item;
+        }),
+      }));
+      set({ cart: { ...originalCart, cart_shops: updatedShops } });
 
-      await cartService.updateCartItemQuantity({ productId, quantity });
+      await cartService.updateCartItemQuantity({ productId, quantity, shopId, skuId });
       await get().fetchCart();
     } catch (err: any) {
       const errorMessage = err?.message || 'Failed to update quantity';
@@ -82,8 +106,11 @@ const useCartStore = create<CartStore>((set, get) => ({
 
   getCartItemCount: (): number => {
     const { cart } = get();
-    if (!cart || !cart.cart_products) return 0;
-    return cart.cart_products.reduce((total, item) => total + item.quantity, 0);
+    if (!cart || !cart.cart_shops) return 0;
+    return cart.cart_shops.reduce(
+      (total, shop) => total + shop.items.reduce((sum, item) => sum + item.quantity, 0),
+      0
+    );
   },
 
   clearCart: () => {
@@ -92,4 +119,3 @@ const useCartStore = create<CartStore>((set, get) => ({
 }));
 
 export default useCartStore;
-

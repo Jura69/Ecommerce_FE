@@ -1,5 +1,6 @@
-import { Card, CardContent, CardMedia, Box, Typography, IconButton } from '@mui/material';
+import { Card, CardContent, CardMedia, Box, Typography, IconButton, Chip } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { Link } from 'react-router-dom';
 import { QuantitySelector } from './';
 import { formatters } from '../../utils';
 import { CartProduct } from '../../types';
@@ -7,8 +8,8 @@ import { tokens } from '../../theme/theme';
 
 interface CartItemProps {
   item: CartProduct;
-  onQuantityChange: (productId: string, quantity: number) => void;
-  onRemove: (productId: string) => void;
+  onQuantityChange: (productId: string, quantity: number, skuId?: string) => void;
+  onRemove: (productId: string, skuId?: string) => void;
   imageSize?: number;
 }
 
@@ -26,7 +27,11 @@ export default function CartItem({
         overflow: 'hidden',
       }}
     >
-      <Box sx={{ bgcolor: tokens.colors.stone100, display: 'flex', alignItems: 'center', p: 1 }}>
+      <Box
+        component={Link}
+        to={`/products/${item.productId}`}
+        sx={{ bgcolor: tokens.colors.stone100, display: 'flex', alignItems: 'center', p: 1, textDecoration: 'none' }}
+      >
         <CardMedia
           component="img"
           sx={{
@@ -35,8 +40,8 @@ export default function CartItem({
             objectFit: 'contain',
             borderRadius: '8px',
           }}
-          image={item.thumb}
-          alt={item.name}
+          image={item.thumb || '/placeholder.png'}
+          alt={item.name || 'Product'}
         />
       </Box>
       <CardContent
@@ -53,27 +58,48 @@ export default function CartItem({
       >
         <Box>
           <Typography
+            component={Link}
+            to={`/products/${item.productId}`}
             variant="subtitle1"
-            sx={{ fontWeight: 600, color: tokens.colors.stone900, lineHeight: 1.3 }}
+            sx={{
+              fontWeight: 600,
+              color: tokens.colors.stone900,
+              lineHeight: 1.3,
+              textDecoration: 'none',
+              '&:hover': { color: tokens.colors.gold700 },
+            }}
           >
-            {item.name}
+            {item.name || 'Unknown Product'}
           </Typography>
+          {item.variationLabel && (
+            <Chip
+              label={item.variationLabel}
+              size="small"
+              sx={{
+                mt: 0.5,
+                bgcolor: tokens.colors.stone100,
+                color: tokens.colors.stone600,
+                fontSize: '0.75rem',
+                height: 24,
+              }}
+            />
+          )}
           <Typography
             variant="body1"
             sx={{ fontWeight: 700, fontFamily: '"Rubik", sans-serif', color: tokens.colors.gold700, mt: 0.5 }}
           >
-            {formatters.currency(item.price)}
+            {formatters.currency(item.price || 0)}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <QuantitySelector
             quantity={item.quantity}
-            onIncrease={() => onQuantityChange(item.productId, item.quantity + 1)}
-            onDecrease={() => onQuantityChange(item.productId, item.quantity - 1)}
+            onIncrease={() => onQuantityChange(item.productId, item.quantity + 1, item.skuId)}
+            onDecrease={() => onQuantityChange(item.productId, item.quantity - 1, item.skuId)}
             min={1}
           />
           <IconButton
-            onClick={() => onRemove(item.productId)}
+            onClick={() => onRemove(item.productId, item.skuId)}
             sx={{
               color: tokens.colors.stone400,
               '&:hover': { color: tokens.colors.error, bgcolor: tokens.colors.errorBg },

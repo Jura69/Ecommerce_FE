@@ -43,7 +43,8 @@ export default function CheckoutPage() {
   useEffect(() => { fetchCart(); }, [fetchCart]);
 
   const safeNum = (v: any) => (typeof v === 'number' && !isNaN(v) ? v : 0);
-  const cartProducts = cart?.cart_products || [];
+  const cartShops = cart?.cart_shops || [];
+  const cartProducts = cartShops.flatMap((shop: any) => shop.items || []);
   const subtotal = cartProducts.reduce((total: number, item: any) => total + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
   const discountAmount = discountApplied?.discountAmount || 0;
   const total = subtotal - discountAmount;
@@ -52,9 +53,10 @@ export default function CheckoutPage() {
     if (!discountCode.trim()) { setDiscountError('Please enter a discount code'); return; }
     try {
       setDiscountError(null);
+      const firstShopId = cartShops[0]?.shopId || '';
       const response = await discountService.getDiscountAmount({
-        codeId: discountCode, userId: cart?.cart_userId || '', shopId: cart?.cart_shopId || '',
-        products: cartProducts.map((item) => ({ productId: item.productId, quantity: item.quantity, price: item.price })),
+        codeId: discountCode, userId: cart?.cart_userId || '', shopId: firstShopId,
+        products: cartProducts.map((item: any) => ({ productId: item.productId, quantity: item.quantity, price: item.price })),
       });
       if (response?.metadata) setDiscountApplied(response.metadata);
     } catch (err: any) { setDiscountError(err.message || 'Invalid discount code'); setDiscountApplied(null); }
@@ -65,11 +67,11 @@ export default function CheckoutPage() {
     try {
       setLoading(true); setError(null);
       const reviewData: any = {
-        shop_order_ids: [{
-          shopId: cart?.cart_shopId || '',
+        shop_order_ids: cartShops.map((shop: any) => ({
+          shopId: shop.shopId,
           shop_discounts: discountApplied ? [{ codeId: discountCode, discountId: discountApplied.discountId }] : [],
-          item_products: cartProducts.map((item) => ({ productId: item.productId, quantity: item.quantity, price: item.price })),
-        }],
+          item_products: shop.items.map((item: any) => ({ productId: item.productId, quantity: item.quantity, price: item.price })),
+        })),
         user_address: checkoutData, user_payment: { method: 'COD' },
       };
       const response = await checkoutService.checkoutReview(reviewData);

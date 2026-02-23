@@ -43,22 +43,41 @@ export interface Product {
 
 export interface CartProduct {
   productId: string;
-  shopId?: string;
+  skuId?: string;
   quantity: number;
-  name: string;
-  price: number;
-  thumb: string;
+  name?: string;
+  price?: number;
+  thumb?: string;
+  variationLabel?: string;
+}
+
+export interface ShopGroup {
+  shopId: string;
+  shopName?: string;
+  items: CartProduct[];
 }
 
 export interface Cart {
   _id?: string;
   cart_userId: string;
-  cart_shopId?: string;
   cart_state: 'active' | 'completed' | 'failed' | 'pending';
-  cart_products: CartProduct[];
+  cart_shops: ShopGroup[];
   cart_count_product?: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface ProductVariation {
+  type: string;
+  values: string[];
+}
+
+export interface ProductSku {
+  _id: string;
+  sku_tier_idx: number[];
+  sku_price: number;
+  sku_stock: number;
+  sku_slug?: string;
 }
 
 export interface Discount {

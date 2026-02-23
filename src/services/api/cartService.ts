@@ -1,18 +1,26 @@
 import axiosInstance from './axios';
-import { ApiResponse, Cart, CartProduct } from '../../types';
+import { ApiResponse, Cart } from '../../types';
 
 export interface AddToCartData {
   productId: string;
+  shopId: string;
   quantity: number;
+  skuId?: string;
+  name?: string;
+  price?: number;
+  thumb?: string;
 }
 
 export interface RemoveFromCartData {
   productId: string;
+  skuId?: string;
 }
 
 export interface UpdateCartQuantityData {
   productId: string;
+  shopId: string;
   quantity: number;
+  skuId?: string;
 }
 
 class CartService {
@@ -28,25 +36,19 @@ class CartService {
 
   async removeFromCart(data: RemoveFromCartData): Promise<ApiResponse<Cart>> {
     const response = await axiosInstance.delete<ApiResponse<Cart>>('/cart', {
-      data: { productId: data.productId },
+      data: { productId: data.productId, skuId: data.skuId },
     });
     return response;
   }
 
   async updateCartItemQuantity(data: UpdateCartQuantityData): Promise<ApiResponse<Cart>> {
     const response = await axiosInstance.patch<ApiResponse<Cart>>('/cart', {
-      shop_order_ids: [
-        {
-          shopId: '',
-          item_products: [
-            {
-              productId: data.productId,
-              quantity: data.quantity,
-            },
-          ],
-          version: '',
-        },
-      ],
+      product: {
+        productId: data.productId,
+        shopId: data.shopId,
+        skuId: data.skuId,
+        quantity: data.quantity,
+      },
     });
     return response;
   }
@@ -54,4 +56,3 @@ class CartService {
 
 export const cartService = new CartService();
 export default cartService;
-

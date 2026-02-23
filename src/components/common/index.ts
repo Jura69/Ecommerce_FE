@@ -11,4 +11,6 @@ export { default as CommentSection } from './CommentSection';
 export { default as CartItem } from './CartItem';
 export { default as CategoryCard } from './CategoryCard';
 export { default as ProductCarousel } from './ProductCarousel';
+export { default as FollowButton } from './FollowButton';
+export { default as VariationSelector } from './VariationSelector';
 
