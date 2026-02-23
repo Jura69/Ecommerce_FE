@@ -18,17 +18,20 @@ import { productService } from '../../services/api';
 import { useCartStore } from '../../store';
 import CommentSection from '../../components/common/CommentSection';
 import ReviewSection from '../../components/common/ReviewSection';
-import { LoadingSpinner } from '../../components/common';
+import { LoadingSpinner, FollowButton, VariationSelector } from '../../components/common';
+import type { SelectedSku } from '../../components/common/VariationSelector';
 import { Product } from '../../types';
 import { tokens } from '../../theme/theme';
+import { formatters } from '../../utils';
 
 function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [addSuccess, setAddSuccess] = useState(false);
+  const [selectedSku, setSelectedSku] = useState<SelectedSku | null>(null);
 
   const { addToCart, loading: cartLoading } = useCartStore();
 
@@ -49,15 +52,35 @@ function ProductDetailPage() {
     if (productId) fetchProduct();
   }, [productId]);
 
+  const hasVariations = product?.product_variations?.length > 0 && product?.skus?.length > 0;
+
   const handleAddToCart = async () => {
     if (!product) return;
-    await addToCart(product._id, quantity);
+    const shopId = typeof product.product_shop === 'string' ? product.product_shop : (product.product_shop as any)?._id || '';
+
+    // If product has variations, require SKU selection
+    if (hasVariations && !selectedSku) return;
+
+    const price = selectedSku?.price ?? product.product_price;
+
+    await addToCart(product._id, quantity, shopId, {
+      name: product.product_name,
+      price,
+      thumb: product.product_thumb,
+      skuId: selectedSku?.skuId,
+      variationLabel: selectedSku?.label,
+    });
     setAddSuccess(true);
   };
 
   const handleQuantityChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value, 10);
     if (value > 0) setQuantity(value);
+  };
+
+  const handleSkuSelect = (sku: SelectedSku | null) => {
+    setSelectedSku(sku);
+    setQuantity(1); // Reset quantity on SKU change
   };
 
   if (loading) return <LoadingSpinner message="Loading product details..." />;
@@ -71,7 +94,10 @@ function ProductDetailPage() {
     );
   }
 
-  const isOutOfStock = product.product_quantity === 0;
+  const currentPrice = selectedSku?.price ?? product.product_price;
+  const currentStock = selectedSku?.stock ?? product.product_quantity;
+  const isOutOfStock = currentStock === 0;
+  const needsSkuSelection = hasVariations && !selectedSku;
 
   return (
     <Box>
@@ -102,23 +128,37 @@ function ProductDetailPage() {
                 {product.product_name}
               </Typography>
 
-              <Typography
-                variant="h4"
-                sx={{
-                  fontWeight: 700,
-                  fontFamily: '"Rubik", sans-serif',
-                  color: tokens.colors.gold700,
-                  mb: 2,
-                }}
-              >
-                ${product.product_price}
-              </Typography>
+              {/* Price — show from VariationSelector or fallback */}
+              {!hasVariations && (
+                <Typography
+                  variant="h4"
+                  sx={{
+                    fontWeight: 700,
+                    fontFamily: '"Rubik", sans-serif',
+                    color: tokens.colors.gold700,
+                    mb: 2,
+                  }}
+                >
+                  {formatters.currency(product.product_price)}
+                </Typography>
+              )}
 
               <Typography variant="body1" sx={{ color: tokens.colors.stone600, mb: 3, lineHeight: 1.7 }}>
                 {product.product_description}
               </Typography>
 
               <Divider sx={{ my: 2 }} />
+
+              {/* Variation Selector */}
+              {hasVariations && (
+                <Box sx={{ mb: 3 }}>
+                  <VariationSelector
+                    variations={product.product_variations}
+                    skus={product.skus}
+                    onSelect={handleSkuSelect}
+                  />
+                </Box>
+              )}
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -127,22 +167,41 @@ function ProductDetailPage() {
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Typography variant="body2" sx={{ color: tokens.colors.stone500, width: 80 }}>Shop:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {(product.product_shop as any)?.name || 'N/A'}
-                  </Typography>
+                  {typeof product.product_shop === 'object' && (product.product_shop as any)?._id ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Typography
+                        component={Link}
+                        to={`/shop/${(product.product_shop as any)._id}`}
+                        variant="body2"
+                        sx={{
+                          fontWeight: 600,
+                          color: tokens.colors.gold700,
+                          textDecoration: 'none',
+                          '&:hover': { textDecoration: 'underline' },
+                        }}
+                      >
+                        {(product.product_shop as any).name}
+                      </Typography>
+                      <FollowButton shopId={(product.product_shop as any)._id} />
+                    </Box>
+                  ) : (
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>N/A</Typography>
+                  )}
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="body2" sx={{ color: tokens.colors.stone500, width: 80 }}>Stock:</Typography>
-                  <Chip
-                    label={isOutOfStock ? 'Out of Stock' : `${product.product_quantity} available`}
-                    size="small"
-                    sx={{
-                      bgcolor: isOutOfStock ? tokens.colors.errorBg : tokens.colors.successBg,
-                      color: isOutOfStock ? tokens.colors.error : tokens.colors.success,
-                      fontWeight: 600,
-                    }}
-                  />
-                </Box>
+                {!hasVariations && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="body2" sx={{ color: tokens.colors.stone500, width: 80 }}>Stock:</Typography>
+                    <Chip
+                      label={isOutOfStock ? 'Out of Stock' : `${currentStock} available`}
+                      size="small"
+                      sx={{
+                        bgcolor: isOutOfStock ? tokens.colors.errorBg : tokens.colors.successBg,
+                        color: isOutOfStock ? tokens.colors.error : tokens.colors.success,
+                        fontWeight: 600,
+                      }}
+                    />
+                  </Box>
+                )}
               </Box>
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 3 }}>
@@ -151,7 +210,7 @@ function ProductDetailPage() {
                   label="Qty"
                   value={quantity}
                   onChange={handleQuantityChange}
-                  inputProps={{ min: 1, max: product.product_quantity }}
+                  inputProps={{ min: 1, max: currentStock }}
                   size="small"
                   sx={{ width: 80 }}
                 />
@@ -160,7 +219,7 @@ function ProductDetailPage() {
                   color="secondary"
                   size="large"
                   onClick={handleAddToCart}
-                  disabled={cartLoading || isOutOfStock}
+                  disabled={cartLoading || isOutOfStock || needsSkuSelection}
                   startIcon={<AddShoppingCartIcon />}
                   sx={{
                     flex: 1,
@@ -171,7 +230,11 @@ function ProductDetailPage() {
                     '&:hover': { boxShadow: tokens.shadows.goldHover },
                   }}
                 >
-                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                  {isOutOfStock
+                    ? 'Out of Stock'
+                    : needsSkuSelection
+                      ? 'Select Options'
+                      : 'Add to Cart'}
                 </Button>
               </Box>
             </Box>
