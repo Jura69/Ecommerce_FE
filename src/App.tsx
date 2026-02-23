@@ -24,6 +24,13 @@ import DashboardPage from './pages/dashboard/DashboardPage';
 import ShopOrdersPage from './pages/dashboard/ShopOrdersPage';
 import ShopProductsPage from './pages/dashboard/ShopProductsPage';
 import WishlistPage from './pages/wishlist/WishlistPage';
+import EditProductPage from './pages/products/EditProductPage';
+import ShopPage from './pages/shop/ShopPage';
+import DiscountListPage from './pages/dashboard/DiscountListPage';
+import CreateDiscountPage from './pages/dashboard/CreateDiscountPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminShopsPage from './pages/admin/AdminShopsPage';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 
 function App() {
   return (
@@ -62,7 +69,9 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/new" element={<NewProductPage />} />
+            <Route path="/products/:productId/edit" element={<EditProductPage />} />
             <Route path="/products/:productId" element={<ProductDetailPage />} />
+            <Route path="/shop/:shopId" element={<ShopPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
@@ -74,7 +83,13 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/dashboard/orders" element={<ShopOrdersPage />} />
             <Route path="/dashboard/products" element={<ShopProductsPage />} />
+            <Route path="/dashboard/discounts" element={<DiscountListPage />} />
+            <Route path="/dashboard/discounts/new" element={<CreateDiscountPage />} />
             <Route path="/wishlist" element={<WishlistPage />} />
+            {/* Admin routes */}
+            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/admin/shops" element={<AdminShopsPage />} />
+            <Route path="/admin/orders" element={<AdminOrdersPage />} />
           </Route>
 
           {/* Redirect unknown routes to home */}
