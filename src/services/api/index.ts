@@ -49,3 +49,4 @@ export {
   type ReviewsResponse,
   type CreateReviewData,
 } from './reviewService';
+export { followService, type FollowedShop } from './followService';

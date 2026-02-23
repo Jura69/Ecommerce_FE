@@ -56,7 +56,14 @@ export default function ShopPage() {
     }, [shopId, page]);
 
     const handleAddToCart = async (product: Product) => {
-        try { await addToCart(product._id, 1); } catch { }
+        const shopId = typeof product.product_shop === 'string' ? product.product_shop : (product.product_shop as any)?._id || '';
+        try {
+            await addToCart(product._id, 1, shopId, {
+                name: product.product_name,
+                price: product.product_price,
+                thumb: product.product_thumb,
+            });
+        } catch { }
     };
 
     if (loading) return <LoadingSpinner message="Loading shop..." />;

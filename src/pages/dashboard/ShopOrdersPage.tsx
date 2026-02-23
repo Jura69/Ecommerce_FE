@@ -140,7 +140,7 @@ export default function ShopOrdersPage() {
                                             ${order.order_checkout?.totalPrice?.toFixed(2) || '0.00'}
                                         </TableCell>
                                         <TableCell>
-                                            {new Date(order.createdAt).toLocaleDateString()}
+                                            {new Date(order.createdOn || order.createdAt || '').toLocaleDateString()}
                                         </TableCell>
                                         <TableCell align="center">
                                             {NEXT_STATUS[order.order_status] && (

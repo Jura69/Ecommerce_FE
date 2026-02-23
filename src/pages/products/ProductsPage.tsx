@@ -97,7 +97,12 @@ function ProductsPage() {
 
   const handleAddToCart = async (product: Product) => {
     try {
-      await addToCart(product._id, 1);
+      const shopId = typeof product.product_shop === 'string' ? product.product_shop : (product.product_shop as any)?._id || '';
+      await addToCart(product._id, 1, shopId, {
+        name: product.product_name,
+        price: product.product_price,
+        thumb: product.product_thumb,
+      });
     } catch (err) {
       console.error('Failed to add to cart:', err);
     }

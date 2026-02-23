@@ -59,9 +59,9 @@ export default function WishlistPage() {
         }
     };
 
-    const handleAddToCart = async (productId: string) => {
+    const handleAddToCart = async (productId: string, shopId: string, productInfo?: { name?: string; price?: number; thumb?: string }) => {
         try {
-            await addToCart(productId, 1);
+            await addToCart(productId, 1, shopId, productInfo);
         } catch (err) {
             console.error('Failed to add to cart:', err);
         }
@@ -117,7 +117,11 @@ export default function WishlistPage() {
                                             <Button
                                                 size="small"
                                                 startIcon={<AddShoppingCartIcon />}
-                                                onClick={() => handleAddToCart(product._id)}
+                                                onClick={() => handleAddToCart(product._id, (product as any).product_shop?._id || '', {
+                                                    name: product.product_name,
+                                                    price: product.product_price,
+                                                    thumb: product.product_thumb,
+                                                })}
                                             >
                                                 Add to Cart
                                             </Button>

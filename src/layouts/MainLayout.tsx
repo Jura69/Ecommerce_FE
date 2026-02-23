@@ -17,8 +17,10 @@ import {
   ListItemButton,
   Divider,
   Avatar,
+  Menu,
+  MenuItem,
 } from '@mui/material';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import HomeIcon from '@mui/icons-material/Home';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -29,6 +31,8 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import StorefrontIcon from '@mui/icons-material/Storefront';
+import PersonIcon from '@mui/icons-material/Person';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useCartStore, useAuthStore } from '../store';
 import { tokens } from '../theme/theme';
 
@@ -43,12 +47,29 @@ const NAV_ITEMS = [
 
 function MainLayout() {
   const { getCartItemCount } = useCartStore();
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const itemCount = getCartItemCount();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
+  const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(anchorEl);
+
+  const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    handleMenuClose();
+    await logout();
+    navigate('/login');
+  };
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
@@ -195,28 +216,82 @@ function MainLayout() {
               </IconButton>
 
               {user && (
-                <Avatar
-                  sx={{
-                    width: 34,
-                    height: 34,
-                    bgcolor: tokens.colors.stone200,
-                    color: tokens.colors.stone700,
-                    fontFamily: '"Rubik", sans-serif',
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
-                    ml: 0.5,
-                    cursor: 'pointer',
-                    border: `2px solid ${tokens.colors.stone200}`,
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      borderColor: tokens.colors.gold500,
-                    },
-                  }}
-                  component={Link}
-                  to="/settings/profile"
-                >
-                  {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                </Avatar>
+                <>
+                  <Avatar
+                    onClick={handleAvatarClick}
+                    sx={{
+                      width: 34,
+                      height: 34,
+                      bgcolor: tokens.colors.stone200,
+                      color: tokens.colors.stone700,
+                      fontFamily: '"Rubik", sans-serif',
+                      fontWeight: 600,
+                      fontSize: '0.85rem',
+                      ml: 0.5,
+                      cursor: 'pointer',
+                      border: `2px solid ${menuOpen ? tokens.colors.gold500 : tokens.colors.stone200}`,
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        borderColor: tokens.colors.gold500,
+                      },
+                    }}
+                  >
+                    {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </Avatar>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={menuOpen}
+                    onClose={handleMenuClose}
+                    onClick={handleMenuClose}
+                    transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                    slotProps={{
+                      paper: {
+                        elevation: 3,
+                        sx: {
+                          mt: 1,
+                          minWidth: 180,
+                          borderRadius: '12px',
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          '& .MuiMenuItem-root': {
+                            borderRadius: '8px',
+                            mx: 0.5,
+                            px: 1.5,
+                            py: 1,
+                            gap: 1.5,
+                            fontSize: '0.9rem',
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+                      <Typography variant="subtitle2" fontWeight={600}>
+                        {user.name || 'User'}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {user.email || ''}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ p: 0.5 }}>
+                      <MenuItem
+                        component={Link}
+                        to="/settings/profile"
+                      >
+                        <PersonIcon fontSize="small" sx={{ color: tokens.colors.stone500 }} />
+                        Profile
+                      </MenuItem>
+                      <MenuItem
+                        onClick={handleLogout}
+                        sx={{ color: 'error.main' }}
+                      >
+                        <LogoutIcon fontSize="small" />
+                        Log Out
+                      </MenuItem>
+                    </Box>
+                  </Menu>
+                </>
               )}
             </Box>
           </Toolbar>
@@ -294,6 +369,31 @@ function MainLayout() {
               </ListItemButton>
             </ListItem>
           ))}
+          <Divider sx={{ my: 1 }} />
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={async () => {
+                setDrawerOpen(false);
+                await logout();
+                navigate('/login');
+              }}
+              sx={{
+                borderRadius: '10px',
+                color: 'error.main',
+                '&:hover': {
+                  bgcolor: 'error.lighter',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40, color: 'error.main' }}>
+                <LogoutIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Log Out"
+                primaryTypographyProps={{ fontWeight: 500, fontSize: '0.9375rem' }}
+              />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Drawer>
 
