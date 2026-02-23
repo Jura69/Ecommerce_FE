@@ -9,4 +9,6 @@ export { default as OrderSummary } from './OrderSummary';
 export { default as FormField } from './FormField';
 export { default as CommentSection } from './CommentSection';
 export { default as CartItem } from './CartItem';
+export { default as CategoryCard } from './CategoryCard';
+export { default as ProductCarousel } from './ProductCarousel';
 
